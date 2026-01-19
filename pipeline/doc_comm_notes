@@ -1,0 +1,210 @@
+###SOME COMMANDS
+docker run -it --rm \
+  -e POSTGRES_USER="root" \
+  -e POSTGRES_PASSWORD="root" \
+  -e POSTGRES_DB="ny_taxi" \
+  -v $(pwd)/ny_taxi_postgres_data:/var/lib/postgresql/data \
+  -p 5432:5432 \
+  --network=pg-network \
+  --name pgdatabase \
+  postgres:16
+
+docker run -it \
+  -e PGADMIN_DEFAULT_EMAIL="admin@admin.com" \
+  -e PGADMIN_DEFAULT_PASSWORD="root" \
+  -v pgadmin_data:/var/lib/pgadmin \
+  -p 8085:80 \
+  --network=pg-network \
+  --name pgadmin \
+  dpage/pgadmin4
+
+docker run -it --rm \
+  --network=pipeline_default \
+  taxi_ingest:v001 \
+    --pg-user=root \
+    --pg-pass=root \
+    --pg-host=pgdatabase \
+    --pg-port=5432 \
+    --pg-db=ny_taxi \
+    --target-table=yellow_taxi_trip_2021_1 \
+    --chunksize=100000
+
+
+---QUERIES
+--Implicit INNER JOIN
+SELECT
+    tpep_pickup_datetime,
+    tpep_dropoff_datetime,
+    total_amount,
+    CONCAT(zpu."Borough", ' | ', zpu."Zone") AS "pickup_loc",
+    CONCAT(zdo."Borough", ' | ', zdo."Zone") AS "dropoff_loc"
+FROM
+    yellow_taxi_trips t,
+    zones zpu,
+    zones zdo
+WHERE
+    t."PULocationID" = zpu."LocationID"
+    AND t."DOLocationID" = zdo."LocationID"
+LIMIT 100;
+
+--Explicit INNER JOIN
+SELECT
+    tpep_pickup_datetime,
+    tpep_dropoff_datetime,
+    total_amount,
+    CONCAT(zpu."Borough", ' | ', zpu."Zone") AS "pickup_loc",
+    CONCAT(zdo."Borough", ' | ', zdo."Zone") AS "dropoff_loc"
+FROM
+    yellow_taxi_trips t
+JOIN
+-- or INNER JOIN but it's less used, when writing JOIN, postgreSQL understands implicitly that we want to use an INNER JOIN
+    zones zpu ON t."PULocationID" = zpu."LocationID"
+JOIN
+    zones zdo ON t."DOLocationID" = zdo."LocationID"
+LIMIT 100;
+
+--Data Quality Checks
+Checking for NULL Location IDs
+SELECT
+    tpep_pickup_datetime,
+    tpep_dropoff_datetime,
+    total_amount,
+    "PULocationID",
+    "DOLocationID"
+FROM
+    yellow_taxi_trips
+WHERE
+    "PULocationID" IS NULL
+    OR "DOLocationID" IS NULL
+LIMIT 100;
+
+Checking for Location IDs NOT IN Zones Table
+SELECT
+    tpep_pickup_datetime,
+    tpep_dropoff_datetime,
+    total_amount,
+    "PULocationID",
+    "DOLocationID"
+FROM
+    yellow_taxi_trips
+WHERE
+    "DOLocationID" NOT IN (SELECT "LocationID" from zones)
+    OR "PULocationID" NOT IN (SELECT "LocationID" from zones)
+LIMIT 100;
+
+
+--LEFT, RIGHT, and OUTER JOINS
+DELETE FROM zones WHERE "LocationID" = 142;
+
+SELECT
+    tpep_pickup_datetime,
+    tpep_dropoff_datetime,
+    total_amount,
+    CONCAT(zpu."Borough", ' | ', zpu."Zone") AS "pickup_loc",
+    CONCAT(zdo."Borough", ' | ', zdo."Zone") AS "dropoff_loc"
+FROM
+    yellow_taxi_trips t
+LEFT JOIN
+    zones zpu ON t."PULocationID" = zpu."LocationID"
+JOIN
+    zones zdo ON t."DOLocationID" = zdo."LocationID"
+LIMIT 100;
+
+--RIGHT JOIN
+SELECT
+    tpep_pickup_datetime,
+    tpep_dropoff_datetime,
+    total_amount,
+    CONCAT(zpu."Borough", ' | ', zpu."Zone") AS "pickup_loc",
+    CONCAT(zdo."Borough", ' | ', zdo."Zone") AS "dropoff_loc"
+FROM
+    yellow_taxi_trips t
+RIGHT JOIN
+    zones zpu ON t."PULocationID" = zpu."LocationID"
+JOIN
+    zones zdo ON t."DOLocationID" = zdo."LocationID"
+LIMIT 100;
+
+--OUTER JOIN
+SELECT
+    tpep_pickup_datetime,
+    tpep_dropoff_datetime,
+    total_amount,
+    CONCAT(zpu."Borough", ' | ', zpu."Zone") AS "pickup_loc",
+    CONCAT(zdo."Borough", ' | ', zdo."Zone") AS "dropoff_loc"
+FROM
+    yellow_taxi_trips t
+OUTER JOIN
+    zones zpu ON t."PULocationID" = zpu."LocationID"
+JOIN
+    zones zdo ON t."DOLocationID" = zdo."LocationID"
+LIMIT 100;
+
+--GROUP BY
+--Calculate Number of Trips Per Day
+
+SELECT
+    CAST(tpep_dropoff_datetime AS DATE) AS "day",
+    COUNT(1)
+FROM
+    yellow_taxi_trips
+GROUP BY
+    CAST(tpep_dropoff_datetime AS DATE)
+LIMIT 100;
+
+--ORDER BY
+--Ordering by Day
+
+SELECT
+    CAST(tpep_dropoff_datetime AS DATE) AS "day",
+    COUNT(1)
+FROM
+    yellow_taxi_trips
+GROUP BY
+    CAST(tpep_dropoff_datetime AS DATE)
+ORDER BY
+    "day" ASC
+LIMIT 100;
+
+--Ordering by Count
+SELECT
+    CAST(tpep_dropoff_datetime AS DATE) AS "day",
+    COUNT(1) AS "count"
+FROM
+    yellow_taxi_trips
+GROUP BY
+    CAST(tpep_dropoff_datetime AS DATE)
+ORDER BY
+    "count" DESC
+LIMIT 100;
+
+--Other Aggregations
+SELECT
+    CAST(tpep_dropoff_datetime AS DATE) AS "day",
+    COUNT(1) AS "count",
+    MAX(total_amount) AS "total_amount",
+    MAX(passenger_count) AS "passenger_count"
+FROM
+    yellow_taxi_trips
+GROUP BY
+    CAST(tpep_dropoff_datetime AS DATE)
+ORDER BY
+    "count" DESC
+LIMIT 100;
+
+
+--Grouping by Multiple Fields
+SELECT
+    CAST(tpep_dropoff_datetime AS DATE) AS "day",
+    "DOLocationID",
+    COUNT(1) AS "count",
+    MAX(total_amount) AS "total_amount",
+    MAX(passenger_count) AS "passenger_count"
+FROM
+    yellow_taxi_trips
+GROUP BY
+    1, 2
+ORDER BY
+    "day" ASC,
+    "DOLocationID" ASC
+LIMIT 100;
