@@ -47,7 +47,7 @@ terraform.rc
 *.json
 # Ignore Parquet data files
 *.parquet
-
+*
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
