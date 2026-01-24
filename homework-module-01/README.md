@@ -80,7 +80,7 @@ volumes:
 
 If multiple answers are correct, select any 
 
-### PGAdmin Connection Settings:
+### PGAdmin Conn Settings Answers (Images):
 ![Connection as db:5432](images/conn_db_host_5432.png)
 ![Connection as postgres:5432](images/conn_postgres_host_5432.png)
 
