@@ -47,8 +47,12 @@ terraform.rc
 *.json
 # Ignore Parquet data files
 *.parquet
+
 *.csv
+# Ignore Jupyter Notebooks
 ingest_notebook.ipynb
+taxi_zone_lookup.csv
+pipeline/taxi_zone_lookup.csv
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
