@@ -59,7 +59,9 @@ services:
       - kestra_data:/app/storage
       - /var/run/docker.sock:/var/run/docker.sock
       - /tmp/kestra-wd:/tmp/kestra-wd
+      - ./gcp-keys:/gcp-keys
     environment:
+      GOOGLE_APPLICATION_CREDENTIALS: /gcp-k/kestra-key.json
       KESTRA_CONFIGURATION: |
         datasources:
           postgres:
