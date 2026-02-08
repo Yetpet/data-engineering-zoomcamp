@@ -105,11 +105,18 @@ Use the materialized table you created earlier in your from clause and note the 
 Choose the answer which most closely matches.
  
 
-- 12.47 MB for non-partitioned table and 326.42 MB for the partitioned table
-- 310.24 MB for non-partitioned table and 26.84 MB for the partitioned table
-- 5.87 MB for non-partitioned table and 0 MB for the partitioned table
-- 310.31 MB for non-partitioned table and 285.64 MB for the partitioned table
 
+- 310.24 MB for non-partitioned table and 26.84 MB for the partitioned table
+
+```
+--materialized non-partitioned table - Query Bytes 310.24MB
+select distinct VendorID from `zoomcamp.e_yellow_trip_2024`
+where DATE(tpep_dropoff_datetime) between '2024-03-01' and '2024-03-15'
+
+--materialized partitioned table - Query Bytes 28.83MB
+select distinct VendorID from `zoomcamp.e_yellow_trip_pc_2024`
+where DATE(tpep_dropoff_datetime) between '2024-03-01' and '2024-03-15'
+```
 
 ## Question 7. External table storage
 
