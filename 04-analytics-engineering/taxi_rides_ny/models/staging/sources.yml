@@ -98,3 +98,39 @@ sources:
             description: Improvement surcharge
           - name: total_amount
             description: Total amount charged
+
+      - name: fhv_tripdata
+        description: Raw FHV trip data
+        columns:
+          - name: dispatching_base_num
+            description: |
+              The TLC Taxi Zone where the trip started
+            data_type: varchar
+
+          - name: pickup_datetime
+            description: Timestamp when meter was engaged
+            data_type: timestamp
+
+          - name: dropOff_datetime
+            description: Timestamp when meter was disengaged
+            data_type: timestamp
+
+          - name: PULocationID
+            description: TLC Taxi Zone where trip started
+            data_type: integer
+
+          - name: DOLocationID
+            description: TLC Taxi Zone where trip ended
+            data_type: integer
+
+          - name: SR_Flag
+            description: |
+              Indicates whether the trip was a shared ride (SR) or not.
+                0: Not a shared ride
+                1: Shared ride
+            data_type: integer
+
+          - name: Affiliated_base_number
+            description: |
+              The TLC Taxi Zone where the affiliated base is located
+            data_type: varchar
