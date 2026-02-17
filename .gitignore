@@ -48,7 +48,9 @@ terraform.rc
 # Ignore Parquet data files
 *.parquet
 *.csv
+*.csv.gz
 ingest_notebook.ipynb
+
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
