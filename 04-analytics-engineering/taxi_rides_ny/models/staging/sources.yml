@@ -100,7 +100,7 @@ sources:
             description: Total amount charged
 
       - name: fhv_tripdata
-        decription: Raw FHV trip data
+        description: Raw FHV trip data
         columns:
           - name: dispatching_base_num
             description: |
