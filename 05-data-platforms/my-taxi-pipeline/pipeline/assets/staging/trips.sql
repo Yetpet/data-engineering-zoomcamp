@@ -99,8 +99,7 @@ with ingested_trips as (
     AND pu_location_id IS NOT NULL
     AND do_location_id IS NOT NULL
     AND taxi_type IS NOT NULL
-),
-enriched_trips AS ( -- Enrich trips with location and payment information using LEFT JOINs
+),trips_staged AS ( 
   SELECT
     ct.pickup_datetime,
     ct.dropoff_datetime,
@@ -172,4 +171,6 @@ select
   payment_type_name,
   extracted_at,
   updated_at  
-from enriched_trips
+from trips_staged
+WHERE pickup_datetime >= '{{ start_datetime }}'
+  AND pickup_datetime < '{{ end_datetime }}'
