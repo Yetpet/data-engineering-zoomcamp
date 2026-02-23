@@ -259,3 +259,13 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
+
+# .bruin.yml
+.bruin.yml
+logs/runs
+logs/*.log
+*.py[cod]
+
+duckdb.db
+logs/queries
+ny_taxi_postgres_data
