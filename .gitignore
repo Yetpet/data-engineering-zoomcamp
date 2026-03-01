@@ -269,3 +269,4 @@ logs/*.log
 duckdb.db
 logs/queries
 ny_taxi_postgres_data
+logs
