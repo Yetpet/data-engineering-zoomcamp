@@ -270,3 +270,6 @@ duckdb.db
 logs/queries
 ny_taxi_postgres_data
 logs
+
+
+/data-engineering-zoomcamp/pipeline/taxi_zone_lookup.csv
